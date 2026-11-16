@@ -29,5 +29,5 @@ INSERT INTO projects (member_id, title, description, tech, url) VALUES
  ((SELECT id FROM members WHERE nickname='หญิง'),'Café App Redesign','รีดีไซน์แอปสั่งกาแฟใน Figma พร้อมทำ usability test','{"Figma"}',NULL),
  ((SELECT id FROM members WHERE nickname='ชาย'),'Library API','REST API ระบบยืมคืนหนังสือ พร้อม JWT auth','{"Node.js","Express","PostgreSQL"}',NULL),
  ((SELECT id FROM members WHERE nickname='ชาย'),'FAQ Chatbot','แชตบอทตอบคำถามจากเอกสารด้วย prompt + context','{"Node.js","AI API"}',NULL),
- ((SELECT id FROM members WHERE nickname='พิม'),'Auto Deploy Pipeline','pipeline build/test/deploy อัตโนมัติด้วย GitHub Actions','{"Docker","GitHub Actions"}',NULL),
- ((SELECT id FROM members WHERE nickname='พิม'),'Student DB Design','ออกแบบ ER diagram และ schema ระบบทะเบียนนักศึกษา','{"PostgreSQL","SQL"}',NULL);
+ ((SELECT id FROM members WHERE nickname='ขนุน'),'Auto Deploy Pipeline','pipeline build/test/deploy อัตโนมัติด้วย GitHub Actions','{"Docker","GitHub Actions"}',NULL),
+ ((SELECT id FROM members WHERE nickname='ขนุน'),'Student DB Design','ออกแบบ ER diagram และ schema ระบบทะเบียนนักศึกษา','{"PostgreSQL","SQL"}',NULL);
