@@ -32,7 +32,7 @@ export default function MemberPage({ id }) {
       <a className="link back" href="#/">← กลับหน้ากลุ่ม</a>
 
       <section className="profile">
-        <div className="avatar xl">{m.emoji}</div>
+        <div className="avatar xl">{m.role?.trim()?.[0] || m.emoji}</div>
         <div>
           <p className="eyebrow">MEMBER {String(idx + 1).padStart(2, '0')} / {String(data.members.length).padStart(2, '0')}</p>
           <h1>{m.name}</h1>
@@ -43,19 +43,19 @@ export default function MemberPage({ id }) {
       </section>
 
       <section>
-        <h2>ทักษะ</h2>
+        <SectionHeading number="01" label="SKILLS">ทักษะ</SectionHeading>
         <div className="chips skills">{m.skills.map((s) => <span key={s}>{s}</span>)}</div>
       </section>
 
       <section>
-        <h2>หน้าที่ในโปรเจกต์นี้</h2>
+        <SectionHeading number="02" label="RESPONSIBILITIES">หน้าที่ในโปรเจกต์นี้</SectionHeading>
         <ul className="tasks">
           {(m.responsibilities || []).map((r, i) => <li key={i} className="glass">✔ {r}</li>)}
         </ul>
       </section>
 
       <section>
-        <h2>ผลงาน</h2>
+        <SectionHeading number="03" label="PROJECTS">ผลงาน</SectionHeading>
         <div className="grid2">
           {m.projects.map((p) => (
             <div className="glass project" key={p.id}>
@@ -72,5 +72,17 @@ export default function MemberPage({ id }) {
         <a className="glass" href={`#/member/${next.id}`}>{next.nickname} →</a>
       </div>
     </main>
+  );
+}
+
+function SectionHeading({ number, label, children }) {
+  return (
+    <div className="section-heading">
+      <span className="section-index">{number}</span>
+      <div>
+        <p className="eyebrow">{label}</p>
+        <h2>{children}</h2>
+      </div>
+    </div>
   );
 }

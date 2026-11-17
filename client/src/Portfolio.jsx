@@ -20,14 +20,16 @@ export default function Portfolio() {
   return (
     <main className="container">
       <section className="hero">
+        <span className="hero-mark" aria-hidden="true">✦</span>
         <p className="eyebrow">MEET THE TEAM · {members.length} MAKERS</p>
         <h1>{team.name}</h1>
         <p className="tagline">{team.tagline}</p>
         <a className="btn" href="#/chat">💬 ถาม AI เกี่ยวกับทีมเรา</a>
+        <p className="hero-note">รู้จักทีมของเรา · ผลงาน · และสมาชิกทุกคน</p>
       </section>
 
       <section>
-        <h2>แนวคิดของทีม</h2>
+        <SectionHeading number="01" label="ABOUT OUR TEAM">แนวคิดของทีม</SectionHeading>
         <p className="lead">{team.concept}</p>
         <div className="grid2">
           {team.highlights.map((h, i) => (
@@ -37,32 +39,32 @@ export default function Portfolio() {
       </section>
 
       <section>
-        <h2>ผลงานที่ทำร่วมกัน</h2>
+        <SectionHeading number="02" label="GROUP PROJECTS">ผลงานที่ทำร่วมกัน</SectionHeading>
         <div className="grid2">
           {groupProjects.map((p) => <ProjectCard key={p.id} p={p} />)}
         </div>
       </section>
 
       <section>
-        <h2>สมาชิก</h2>
-        <div className="grid2">
+        <SectionHeading number="03" label="OUR MEMBERS">สมาชิก</SectionHeading>
+        <div className="grid2 member-grid">
           {members.map((m, i) => (
             <a href={`#/member/${m.id}`} className="glass member" key={m.id} style={{ '--c': COLORS[i % COLORS.length] }}>
-              <div className="avatar">{m.emoji}</div>
+              <div className="avatar">{m.role?.trim()?.[0] || m.emoji}</div>
               <h3>{m.name} <small>({m.nickname})</small></h3>
               <p className="role">{m.role}</p>
               <p>{m.bio}</p>
               <div className="chips">{m.skills.map((s) => <span key={s}>{s}</span>)}</div>
               <h4>ผลงาน</h4>
               {m.projects.map((p) => <ProjectCard key={p.id} p={p} small />)}
-            <span className="more">ดูโปรไฟล์เต็ม →</span>
+              <span className="more">ดูโปรไฟล์เต็ม →</span>
             </a>
           ))}
         </div>
       </section>
 
       <section id="contact">
-        <h2>ติดต่อเรา</h2>
+        <SectionHeading number="04" label="GET IN TOUCH">ติดต่อเรา</SectionHeading>
         <div className="contacts">
           <a className="glass" href={`mailto:${team.email}`}>✉️ {team.email}</a>
           <a className="glass" href={team.github} target="_blank" rel="noreferrer">🐙 GitHub</a>
@@ -75,9 +77,22 @@ export default function Portfolio() {
   );
 }
 
+function SectionHeading({ number, label, children }) {
+  return (
+    <div className="section-heading">
+      <span className="section-index">{number}</span>
+      <div>
+        <p className="eyebrow">{label}</p>
+        <h2>{children}</h2>
+      </div>
+    </div>
+  );
+}
+
 function ProjectCard({ p, small }) {
   const body = (
     <>
+      {!small && <div className="project-cover" aria-hidden="true"><span>✦</span></div>}
       <b>{p.title}</b>
       <span>{p.description}</span>
       <div className="chips">{p.tech.map((t) => <span key={t}>{t}</span>)}</div>

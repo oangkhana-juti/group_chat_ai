@@ -51,18 +51,13 @@ docker compose up --build
 ```
 
 ## 🛠️ รันแบบ Development
-ต้องมี Node.js 20+ และ PostgreSQL
+ต้องมี Node.js 20+, PostgreSQL และไฟล์ `.env` ที่ root ของโปรเจกต์
 ```bash
-createdb portfolio
-cp .env.example .env        # แก้ DATABASE_URL และใส่ API key
-
-# Terminal 1 — backend (port 3001)
-cd server && npm install
-export $(grep -v '^#' ../.env | xargs) && npm run dev
-
-# Terminal 2 — frontend (port 5173, proxy /api ไป 3001)
-cd client && npm install && npm run dev
+npm install                 # ติดตั้ง dependencies ของ client และ server
+npm run dev                 # รันทั้งสองโหนดพร้อมกัน
 ```
+ก่อนรัน ให้คัดลอก `.env.example` เป็น `.env` แล้วใส่ `ANTHROPIC_API_KEY` หากต้องการใช้แชต AI จากนั้นรัน `npm run dev` ซึ่งจะเริ่ม PostgreSQL ผ่าน Docker Compose และเปิดทั้งสองโหนดให้เอง ข้อมูล Portfolio จะอ่านจากฐานข้อมูลผ่าน API โดย seed จะเติมข้อมูลตัวอย่างเมื่อฐานข้อมูลยังไม่มีทีม
+Frontend เปิดที่ `http://localhost:5173` และส่ง `/api` ไปยัง backend ตาม `API_URL` ใน `.env` (ค่าเริ่มต้นคือ `http://localhost:3001`) หากต้องการรันแยก ใช้ `npm run dev:client` หรือ `npm run dev:server`
 
 ## ☁️ Deploy (Render)
 1. สร้าง **PostgreSQL** บน Render → คัดลอก *Internal Database URL*
