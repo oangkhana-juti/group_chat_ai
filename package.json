@@ -6,8 +6,9 @@
     "server"
   ],
   "scripts": {
-    "predev": "docker compose up -d db",
     "dev": "concurrently --kill-others --names client,server --prefix-colors cyan,magenta \"npm run dev --workspace=chat-portfolio-client\" \"npm run dev --workspace=chat-portfolio-server\"",
+    "build": "npm run build --workspace=chat-portfolio-client",
+    "preview": "npm run preview --workspace=chat-portfolio-client",
     "dev:client": "npm run dev --workspace=chat-portfolio-client",
     "dev:server": "npm run dev --workspace=chat-portfolio-server"
   },

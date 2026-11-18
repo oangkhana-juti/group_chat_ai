@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
+import { apiUrl } from './api.js';
+import MemberAvatar from './MemberAvatar.jsx';
 
-const COLORS = ['#ff6b9d', '#4cc9f0', '#95f0a8', '#ffd166'];
+const COLORS = ['#8EC5FF', '#3B2418', '#8EC5FF'];
 
 export default function MemberPage({ id }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/portfolio')
+    fetch(apiUrl('/api/portfolio'))
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then(setData)
       .catch(() => setError('โหลดข้อมูลไม่สำเร็จ'));
@@ -32,7 +34,7 @@ export default function MemberPage({ id }) {
       <a className="link back" href="#/">← กลับหน้ากลุ่ม</a>
 
       <section className="profile">
-        <div className="avatar xl">{m.role?.trim()?.[0] || m.emoji}</div>
+        <MemberAvatar member={m} large />
         <div>
           <p className="eyebrow">MEMBER {String(idx + 1).padStart(2, '0')} / {String(data.members.length).padStart(2, '0')}</p>
           <h1>{m.name}</h1>
@@ -66,6 +68,16 @@ export default function MemberPage({ id }) {
           ))}
         </div>
       </section>
+
+      {(m.linkedin || m.phone) && (
+        <section>
+          <SectionHeading number="04" label="CONTACT">ช่องทางการติดต่อ</SectionHeading>
+          <div className="contacts">
+            {m.phone && <a className="glass" href={`tel:${m.phone}`}>โทร {m.phone}</a>}
+            {m.linkedin && <a className="glass" href={m.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a>}
+          </div>
+        </section>
+      )}
 
       <div className="pager">
         <a className="glass" href={`#/member/${prev.id}`}>← {prev.nickname}</a>

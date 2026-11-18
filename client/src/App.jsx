@@ -24,7 +24,7 @@ export default function App() {
     <>
       <div className="blobs" aria-hidden="true"><i /><i /><i /></div>
       <nav className="nav">
-        <a href="#/" className="logo">◐ Team<span>Folio</span></a>
+        <a href="#/" className="logo">◐ Do Ra E <span>Mo Nueng</span></a>
         <div>
           <a href="#/" className={page !== 'chat' ? 'active' : ''}>Portfolio</a>
           <a href="#/chat" className={page === 'chat' ? 'active' : ''}>💬 คุยกับ AI</a>

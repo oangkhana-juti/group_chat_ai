@@ -19,7 +19,7 @@ React (Vite)  ──/api──▶  Express  ──▶  PostgreSQL (team, members
 | Backend | Node.js + Express | `server/index.js` |
 | Database | PostgreSQL 16 | `server/schema.sql`, `server/seed.sql` |
 | AI | Claude API (`@anthropic-ai/sdk`) | `server/ai.js` |
-| CI/CD | GitHub Actions + Docker + Render | `.github/workflows/ci-cd.yml` |
+| CI/CD | GitHub Actions + GitHub Pages + Render | `.github/workflows/ci-cd.yml` |
 
 ### AI Integration ทำงานอย่างไร
 1. ผู้ใช้ส่งข้อความ → `POST /api/chat`
@@ -40,38 +40,42 @@ React (Vite)  ──/api──▶  Express  ──▶  PostgreSQL (team, members
 | POST | `/api/chat` | `{ sessionId, message }` → `{ reply }` |
 
 ## ✏️ ก่อนเริ่ม: ใส่ข้อมูลกลุ่มของคุณ
-แก้ `server/seed.sql` (ชื่อกลุ่ม แนวคิด สมาชิก ทักษะ ผลงาน ช่องทางติดต่อ) — seed ทำงานอัตโนมัติเมื่อตาราง `team` ว่าง  
-ถ้าเคยรันแล้วต้องการ seed ใหม่: `docker compose down -v`
+แก้ `server/seed.sql` (ชื่อกลุ่ม แนวคิด สมาชิก ทักษะ ผลงาน ช่องทางติดต่อ) — seed ทำงานอัตโนมัติเมื่อตาราง `team` ว่าง
 
-## 🚀 รันด้วย Docker (ง่ายที่สุด)
+## Run on localhost
+ต้องมี Node.js 20+, PostgreSQL 16+ ที่เปิดใช้งานอยู่ (ติดตั้งในเครื่องหรือใช้ฐานข้อมูลบนคลาวด์) และไฟล์ `.env` ที่ root ของโปรเจกต์
 ```bash
-cp .env.example .env        # ใส่ ANTHROPIC_API_KEY
-docker compose up --build
-# เปิด http://localhost:3001
+npm install                 # ติดตั้ง dependencies ครั้งเดียว
+npm run dev                 # Frontend :3000 และ API :3001
+```
+บน PowerShell ให้คัดลอกไฟล์ตัวอย่างก่อนด้วย `Copy-Item .env.example .env`
+ตั้ง `DATABASE_URL` ให้ชี้ไปยัง PostgreSQL ที่เปิดอยู่ และใส่ `ANTHROPIC_API_KEY` หากต้องการใช้แชต AI คำสั่ง `npm run dev` ไม่ได้เริ่มฐานข้อมูลให้โดยอัตโนมัติ; Vite ส่ง `/api` ไปยัง `API_URL` (ค่าเริ่มต้น `http://localhost:3001`)
+
+```bash
+npm run build                 # สร้างเว็บ static ไว้ที่ client/out/
+npm run preview               # preview ที่ http://localhost:4173
 ```
 
-## 🛠️ รันแบบ Development
-ต้องมี Node.js 20+, PostgreSQL และไฟล์ `.env` ที่ root ของโปรเจกต์
-```bash
-npm install                 # ติดตั้ง dependencies ของ client และ server
-npm run dev                 # รันทั้งสองโหนดพร้อมกัน
-```
-ก่อนรัน ให้คัดลอก `.env.example` เป็น `.env` แล้วใส่ `ANTHROPIC_API_KEY` หากต้องการใช้แชต AI จากนั้นรัน `npm run dev` ซึ่งจะเริ่ม PostgreSQL ผ่าน Docker Compose และเปิดทั้งสองโหนดให้เอง ข้อมูล Portfolio จะอ่านจากฐานข้อมูลผ่าน API โดย seed จะเติมข้อมูลตัวอย่างเมื่อฐานข้อมูลยังไม่มีทีม
-Frontend เปิดที่ `http://localhost:5173` และส่ง `/api` ไปยัง backend ตาม `API_URL` ใน `.env` (ค่าเริ่มต้นคือ `http://localhost:3001`) หากต้องการรันแยก ใช้ `npm run dev:client` หรือ `npm run dev:server`
+ไฟล์ใน `client/public/` จะถูกคัดลอกไป `client/out/` เช่น `client/public/images/team.jpg` อ้างอิงใน React ด้วย `${import.meta.env.BASE_URL}images/team.jpg`
 
-## ☁️ Deploy (Render)
-1. สร้าง **PostgreSQL** บน Render → คัดลอก *Internal Database URL*
-2. สร้าง **Web Service** จาก GitHub repo นี้ (Runtime: Docker)
+## Deploy
+### Frontend: GitHub Pages
+1. Repository Settings → Pages → เลือก **GitHub Actions** เป็น Source
+2. Settings → Secrets and variables → Actions → Variables เพิ่ม `VITE_API_URL` เป็น URL ของ Render Web Service (เช่น `https://your-service.onrender.com`, ไม่ต้องลงท้ายด้วย `/`)
+3. Push ไป `main`; workflow จะ build `client/out/` และเผยแพร่ไป GitHub Pages
+
+### Backend และฐานข้อมูล: Render (ไม่ใช้ Docker)
+1. สร้าง **PostgreSQL** บน Render แล้วคัดลอก *Internal Database URL*
+2. สร้าง **Web Service** จาก repo นี้ โดยตั้ง Root Directory เป็น `server`, Runtime เป็น **Node**, Build Command เป็น `npm ci`, Start Command เป็น `npm start`
 3. ตั้ง Environment: `DATABASE_URL`, `PGSSL=true`, `ANTHROPIC_API_KEY`, `AI_MODEL`
-4. Settings → *Deploy Hook* → คัดลอก URL
-5. GitHub repo → Settings → Secrets → Actions → เพิ่ม `RENDER_DEPLOY_HOOK_URL`
-6. ปิด Auto-Deploy บน Render (ให้ GitHub Actions เป็นคน trigger หลังผ่านเทสต์)
+4. สร้าง Deploy Hook สำหรับ Web Service แล้วเพิ่มเป็น GitHub Actions Secret ชื่อ `RENDER_DEPLOY_HOOK_URL`
+5. ปิด Auto-Deploy บน Render เพื่อให้ GitHub Actions เรียก deploy หลังผ่านเทสต์
 
-## 🔄 CI/CD Pipeline
+### CI/CD Pipeline
 เมื่อ push / PR เข้า `main`:
-1. **test** — build React, ติดตั้ง server, สตาร์ท API กับ Postgres จริง แล้ว smoke test (`/health`, `/portfolio`, validation 400)
-2. **docker** (เฉพาะ `main`) — build image แล้ว push ไป GitHub Container Registry
-3. **deploy** (เฉพาะ `main`) — เรียก Render Deploy Hook
+1. **test** — build React, ติดตั้ง server, สตาร์ท API กับ PostgreSQL แล้ว smoke test (`/health`, `/portfolio`, validation 400)
+2. **pages** (เฉพาะ push เข้า `main`) — deploy frontend ไป GitHub Pages
+3. **deploy** (เฉพาะ push เข้า `main`) — trigger Render Web Service
 
 ## 🔐 ความปลอดภัย
 - API key อยู่ฝั่ง server เท่านั้น ไม่ถูกส่งไปที่ browser
@@ -84,12 +88,12 @@ Frontend เปิดที่ `http://localhost:5173` และส่ง `/api`
 |---|---|---|
 | คนที่ 1 | **Frontend Developer & UI/UX Designer** — หน้า Group/Member Portfolio, Chat UI, ระบบส่งข้อความ/แสดงคำตอบ AI, Responsive, เชื่อม API | `client/` ทั้งหมด (`Portfolio.jsx`, `MemberPage.jsx`, `Chat.jsx`, `styles.css`, `vite.config.js`) |
 | คนที่ 2 | **Backend Developer & AI Engineer** — Express API, เชื่อม AI, System Prompt, ระบบดึง/ค้นหา Portfolio เป็น Context, จัดการคำถามกลุ่ม/สมาชิก, Error & Response | `server/index.js`, `server/ai.js` |
-| คนที่ 3 | **Database Engineer & DevOps** — ออกแบบ PostgreSQL, ตารางสมาชิก/Portfolio/ประวัติแชต, เชื่อม DB กับ Backend, GitHub Actions, Environment Variables, Deploy & monitoring | `server/schema.sql`, `server/seed.sql`, `server/db.js`, `Dockerfile`, `docker-compose.yml`, `.github/workflows/`, `.env.example` |
+| คนที่ 3 | **Database Engineer & DevOps** — ออกแบบ PostgreSQL, ตารางสมาชิก/Portfolio/ประวัติแชต, เชื่อม DB กับ Backend, GitHub Actions, Environment Variables, Deploy & monitoring | `server/schema.sql`, `server/seed.sql`, `server/db.js`, `.github/workflows/`, `.env.example` |
 
 ### จุดที่ควรอธิบายได้ (เตรียมสอบ Technical Understanding)
 - **คนที่ 1**: hash routing ทำงานอย่างไร, `fetch` + state ใน `Chat.jsx`, ทำไมต้องมี proxy `/api` ใน Vite, CSS responsive (`@media`, `dvh`, grid auto-fit)
 - **คนที่ 2**: `buildSystemPrompt()` สร้าง context อย่างไร, `findRelevantMembers()` ให้คะแนนอย่างไร (alias ภาษาไทย + คำอังกฤษ), การ map error จาก AI → HTTP status (`mapError`), ทำไมเรียก AI ฝั่ง server
-- **คนที่ 3**: ER diagram (team / members / projects / messages) และ FK, `member_id = NULL` แปลว่าอะไร, parameterized query, multi-stage Dockerfile, ลำดับ job ใน CI/CD, ทำไมไม่ commit `.env`
+- **คนที่ 3**: ER diagram (team / members / projects / messages) และ FK, `member_id = NULL` แปลว่าอะไร, parameterized query, การ deploy Node.js บน Render, ลำดับ job ใน CI/CD, ทำไมไม่ commit `.env`
 
 ### Error Response ของ API
 ทุก error ตอบเป็น JSON `{ "code": "...", "error": "ข้อความภาษาไทย" }`

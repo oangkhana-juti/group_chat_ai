@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { apiUrl } from './api.js';
 
 const SUGGESTIONS = [
   'ทีมนี้เก่งเรื่องอะไรบ้าง?',
@@ -29,7 +30,7 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    fetch(`/api/chat/${sessionId}`).then((r) => r.json()).then(setMessages).catch(() => {});
+    fetch(apiUrl(`/api/chat/${sessionId}`)).then((r) => r.json()).then(setMessages).catch(() => {});
   }, [sessionId]);
 
   useEffect(() => { bottom.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, loading]);
@@ -40,7 +41,7 @@ export default function Chat() {
     setError(''); setInput(''); setLoading(true);
     setMessages((m) => [...m, { role: 'user', content: message }]);
     try {
-      const r = await fetch('/api/chat', {
+      const r = await fetch(apiUrl('/api/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, message }),
@@ -65,7 +66,7 @@ export default function Chat() {
   return (
     <main className="chat glass">
       <header>
-        <div><b>🤖 TeamFolio AI</b><small>ตอบจากข้อมูลของทีมเท่านั้น</small></div>
+        <div><b>🤖 Do Ra E Mo Nueng AI</b><small>ตอบจากข้อมูลของทีมเท่านั้น</small></div>
         <button className="ghost" onClick={newChat}>+ แชตใหม่</button>
       </header>
 

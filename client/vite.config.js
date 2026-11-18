@@ -9,9 +9,14 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, root, '');
   const apiUrl = env.API_URL || `http://localhost:${env.PORT || 3001}`;
+  const apiProxy = { '/api': apiUrl };
 
   return {
+    base: env.VITE_BASE_PATH || '/',
+    envDir: root,
     plugins: [react()],
-    server: { proxy: { '/api': apiUrl } },
+    server: { port: 3000, proxy: apiProxy },
+    preview: { port: 4173, proxy: apiProxy },
+    build: { outDir: 'out' },
   };
 });

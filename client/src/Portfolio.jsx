@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
+import { apiUrl } from './api.js';
+import MemberAvatar from './MemberAvatar.jsx';
 
-const COLORS = ['#ff6b9d', '#4cc9f0', '#95f0a8', '#ffd166'];
+const COLORS = ['#8EC5FF', '#3B2418', '#8EC5FF'];
 
 export default function Portfolio() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/portfolio')
+    fetch(apiUrl('/api/portfolio'))
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then(setData)
       .catch(() => setError('โหลดข้อมูล Portfolio ไม่สำเร็จ'));
@@ -50,7 +52,7 @@ export default function Portfolio() {
         <div className="grid2 member-grid">
           {members.map((m, i) => (
             <a href={`#/member/${m.id}`} className="glass member" key={m.id} style={{ '--c': COLORS[i % COLORS.length] }}>
-              <div className="avatar">{m.role?.trim()?.[0] || m.emoji}</div>
+              <MemberAvatar member={m} />
               <h3>{m.name} <small>({m.nickname})</small></h3>
               <p className="role">{m.role}</p>
               <p>{m.bio}</p>
@@ -66,10 +68,11 @@ export default function Portfolio() {
       <section id="contact">
         <SectionHeading number="04" label="GET IN TOUCH">ติดต่อเรา</SectionHeading>
         <div className="contacts">
-          <a className="glass" href={`mailto:${team.email}`}>✉️ {team.email}</a>
-          <a className="glass" href={team.github} target="_blank" rel="noreferrer">🐙 GitHub</a>
-          <span className="glass">💚 LINE {team.line_id}</span>
-          <span className="glass">📸 {team.instagram}</span>
+          {members.map((m) => (
+            <a className="glass" href={`mailto:${m.email}`} key={m.id}>
+              ✉️ {m.name}<br />{m.email}
+            </a>
+          ))}
         </div>
       </section>
       <footer>© {new Date().getFullYear()} {team.name}</footer>
