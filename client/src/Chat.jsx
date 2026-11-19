@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { apiUrl } from './api.js';
 import { content, label } from './i18n.js';
+import { findLocalAnswer } from './localAnswer.js';
 import TypedText from './TypedText.jsx';
 
 const SUGGESTIONS = {
@@ -74,47 +75,6 @@ function removeSession(sessionId) {
   const sessions = readSessions().filter((session) => session.id !== sessionId);
   localStorage.setItem(sessionsKey(), JSON.stringify(sessions));
   localStorage.removeItem(historyKey(sessionId));
-}
-
-function findLocalAnswer(portfolio, question, language) {
-  const english = language === 'en';
-  const q = question.toLowerCase();
-  if (english ? /everyone|all members|team members|introduce|who is on the team/.test(q) : /ทุกคน|สมาชิก|ใครอยู่ทีม|แนะนำ/.test(q)) {
-    return portfolio.members
-      .map((member) => `${member.name} (${member.nickname}) — ${content(member.role, language)}`)
-      .join('\n');
-  }
-
-  const found = portfolio.members.find((member) =>
-    q.includes(member.name.toLowerCase()) ||
-    q.includes(member.nickname.toLowerCase()) ||
-    member.skills.some((skill) => q.includes(skill.toLowerCase()))
-  ) || (english && /design|frontend|front-end|ui\/ux/.test(q)
-    ? portfolio.members.find((member) => /frontend|ui\/ux/i.test(`${member.role} ${member.skills.join(' ')}`))
-    : null);
-
-  if (found) {
-    const projects = found.projects.map((project) => content(project.title, language)).join(', ');
-    return english
-      ? `${found.name} (${found.nickname}) is a ${content(found.role, language)}.\nSkills: ${found.skills.map((skill) => content(skill, language)).join(', ')}\nProjects: ${projects || '-'}`
-      : `${found.name} (${found.nickname}) รับหน้าที่ ${content(found.role, language)}\nทักษะ: ${found.skills.map((skill) => content(skill, language)).join(', ')}\nผลงาน: ${projects || '-'}`;
-  }
-
-  if (english ? /contact|email|phone|reach/.test(q) : /ติดต่อ|อีเมล|โทร/.test(q)) {
-    return portfolio.members
-      .map((member) => `${member.name}: ${member.email}${member.phone ? ` / ${label(language, 'โทร', 'Phone')} ${member.phone}` : ''}`)
-      .join('\n');
-  }
-
-  if (english ? /project|built|work|portfolio/.test(q) : /ผลงาน|โครงการ|โปรเจกต์/.test(q)) {
-    return `${label(language, 'ผลงานที่ทำร่วมกัน', 'Group projects')}:\n${portfolio.groupProjects
-      .map((project) => `• ${content(project.title, language)}: ${content(project.description, language)}`)
-      .join('\n')}`;
-  }
-
-  return english
-    ? `${portfolio.team.name} is a team of ${portfolio.members.length}. ${content(portfolio.team.concept, language)}`
-    : `ทีม ${portfolio.team.name} มีสมาชิก ${portfolio.members.length} คน แนวคิด: ${content(portfolio.team.concept, language)}`;
 }
 
 export default function Chat({ language }) {

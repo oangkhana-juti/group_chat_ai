@@ -12,10 +12,6 @@ export function bootMotion() {
   const tilted = new WeakSet();
   const magnetized = new WeakSet();
   const root = document.documentElement;
-  const progress = document.createElement('div');
-  progress.className = 'scroll-progress';
-  progress.setAttribute('aria-hidden', 'true');
-  document.body.append(progress);
   root.classList.add('motion-ready');
 
   const revealObserver = !reducedMotion && 'IntersectionObserver' in window
@@ -137,9 +133,6 @@ export function bootMotion() {
     if (scrollFrame) return;
     scrollFrame = window.requestAnimationFrame(() => {
       scrollFrame = 0;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const ratio = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-      progress.style.transform = `scaleX(${Math.min(1, Math.max(0, ratio))})`;
       document.querySelector('.nav')?.classList.toggle('is-scrolled', window.scrollY > 24);
     });
   };
@@ -154,7 +147,6 @@ export function bootMotion() {
     window.removeEventListener('resize', updateScrollEffects);
     cleanups.forEach((cleanup) => cleanup());
     if (scrollFrame) window.cancelAnimationFrame(scrollFrame);
-    progress.remove();
     root.classList.remove('motion-ready');
   };
 }

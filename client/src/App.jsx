@@ -16,6 +16,7 @@ function parse() {
 
 export default function App() {
   const [route, setRoute] = useState(parse);
+  const [activeSection, setActiveSection] = useState(() => parse().section || null);
   const [language, setLanguage] = useState(() => localStorage.getItem('language') === 'en' ? 'en' : 'th');
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -32,12 +33,42 @@ export default function App() {
     const onHash = () => {
       const nextRoute = parse();
       setRoute(nextRoute);
+      setActiveSection(nextRoute.section || null);
       if (!nextRoute.section) window.scrollTo(0, 0);
     };
     addEventListener('hashchange', onHash);
     return () => removeEventListener('hashchange', onHash);
   }, []);
   const { page } = route;
+
+  useEffect(() => {
+    if (page !== 'home') return undefined;
+
+    let frame = 0;
+    const updateActiveSection = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const navBottom = document.querySelector('.nav')?.getBoundingClientRect().bottom || 0;
+        const activationLine = navBottom + 40;
+        let currentSection = null;
+        for (const section of ['about', 'projects', 'members', 'contact']) {
+          const element = document.getElementById(section);
+          if (element && element.getBoundingClientRect().top <= activationLine) currentSection = section;
+        }
+        setActiveSection(currentSection);
+      });
+    };
+
+    updateActiveSection();
+    window.addEventListener('scroll', updateActiveSection, { passive: true });
+    window.addEventListener('resize', updateActiveSection);
+    return () => {
+      window.removeEventListener('scroll', updateActiveSection);
+      window.removeEventListener('resize', updateActiveSection);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [page]);
 
   function toggleLanguage() {
     const nextLanguage = language === 'th' ? 'en' : 'th';
@@ -84,11 +115,11 @@ export default function App() {
         <a href="#/" className="logo">◐ Do Ra E <span>Mo Nueng</span></a>
         <div className="nav-menu">
           <div className="nav-links">
-            <a href="#/" onClick={scrollHomeToTop} className={!route.section && page !== 'chat' ? 'active' : ''}>{label(language, 'หน้าหลัก', 'Homepage')}</a>
-            <a href="#/section/about" onClick={(event) => scrollToSection(event, 'about')} className={route.section === 'about' ? 'active' : ''}>{label(language, 'เกี่ยวกับทีม', 'ABOUT OUR TEAM')}</a>
-            <a href="#/section/projects" onClick={(event) => scrollToSection(event, 'projects')} className={route.section === 'projects' ? 'active' : ''}>{label(language, 'ผลงานของทีม', 'GROUP PROJECTS')}</a>
-            <a href="#/section/members" onClick={(event) => scrollToSection(event, 'members')} className={route.section === 'members' ? 'active' : ''}>{label(language, 'สมาชิกในทีม', 'OUR MEMBERS')}</a>
-            <a href="#/section/contact" onClick={(event) => scrollToSection(event, 'contact')} className={route.section === 'contact' ? 'active' : ''}>{label(language, 'ติดต่อเรา', 'GET IN TOUCH')}</a>
+            <a href="#/" onClick={scrollHomeToTop} className={!activeSection && page !== 'chat' ? 'active' : ''}>{label(language, 'หน้าหลัก', 'Homepage')}</a>
+            <a href="#/section/about" onClick={(event) => scrollToSection(event, 'about')} className={activeSection === 'about' ? 'active' : ''}>{label(language, 'เกี่ยวกับทีม', 'ABOUT OUR TEAM')}</a>
+            <a href="#/section/projects" onClick={(event) => scrollToSection(event, 'projects')} className={activeSection === 'projects' ? 'active' : ''}>{label(language, 'ผลงานของทีม', 'GROUP PROJECTS')}</a>
+            <a href="#/section/members" onClick={(event) => scrollToSection(event, 'members')} className={activeSection === 'members' ? 'active' : ''}>{label(language, 'สมาชิกในทีม', 'OUR MEMBERS')}</a>
+            <a href="#/section/contact" onClick={(event) => scrollToSection(event, 'contact')} className={activeSection === 'contact' ? 'active' : ''}>{label(language, 'ติดต่อเรา', 'GET IN TOUCH')}</a>
             <a href="#/chat" className={page === 'chat' ? 'active' : ''}>{label(language, '💬 คุยกับ AI', '💬 AI Chat')}</a>
           </div>
           <div className="nav-actions">

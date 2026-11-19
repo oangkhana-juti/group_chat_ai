@@ -64,7 +64,7 @@ npm run preview               # preview ที่ http://localhost:4173
 2. Settings → Secrets and variables → Actions → Variables เพิ่ม `VITE_API_URL` เป็น URL ของ Render Web Service (เช่น `https://your-service.onrender.com`, ไม่ต้องลงท้ายด้วย `/`)
 3. Push ไป `main`; workflow จะ build `client/out/` และเผยแพร่ไป GitHub Pages
 
-### Backend และฐานข้อมูล: Render (ไม่ใช้ Docker)
+### Backend และฐานข้อมูล: Render 
 1. สร้าง **PostgreSQL** บน Render แล้วคัดลอก *Internal Database URL*
 2. สร้าง **Web Service** จาก repo นี้ โดยตั้ง Root Directory เป็น `server`, Runtime เป็น **Node**, Build Command เป็น `npm ci`, Start Command เป็น `npm start`
 3. ตั้ง Environment: `DATABASE_URL`, `PGSSL=true`, `ANTHROPIC_API_KEY`, `AI_MODEL`
@@ -79,7 +79,7 @@ npm run preview               # preview ที่ http://localhost:4173
 
 ## 🔐 ความปลอดภัย
 - API key อยู่ฝั่ง server เท่านั้น ไม่ถูกส่งไปที่ browser
-- `.env` อยู่ใน `.gitignore`; ใช้ `.env.example` เป็นแม่แบบ
+- ใช้ `.env.example` เป็นแม่แบบ
 - จำกัดความยาวข้อความ 1,000 ตัวอักษร และใช้ parameterized query ทุกจุด
 
 ## 📋 การแบ่งงานของทีม (3 คน)
@@ -90,10 +90,6 @@ npm run preview               # preview ที่ http://localhost:4173
 | คนที่ 2 | **Backend Developer & AI Engineer** — Express API, เชื่อม AI, System Prompt, ระบบดึง/ค้นหา Portfolio เป็น Context, จัดการคำถามกลุ่ม/สมาชิก, Error & Response | `server/index.js`, `server/ai.js` |
 | คนที่ 3 | **Database Engineer & DevOps** — ออกแบบ PostgreSQL, ตารางสมาชิก/Portfolio/ประวัติแชต, เชื่อม DB กับ Backend, GitHub Actions, Environment Variables, Deploy & monitoring | `server/schema.sql`, `server/seed.sql`, `server/db.js`, `.github/workflows/`, `.env.example` |
 
-### จุดที่ควรอธิบายได้ (เตรียมสอบ Technical Understanding)
-- **คนที่ 1**: hash routing ทำงานอย่างไร, `fetch` + state ใน `Chat.jsx`, ทำไมต้องมี proxy `/api` ใน Vite, CSS responsive (`@media`, `dvh`, grid auto-fit)
-- **คนที่ 2**: `buildSystemPrompt()` สร้าง context อย่างไร, `findRelevantMembers()` ให้คะแนนอย่างไร (alias ภาษาไทย + คำอังกฤษ), การ map error จาก AI → HTTP status (`mapError`), ทำไมเรียก AI ฝั่ง server
-- **คนที่ 3**: ER diagram (team / members / projects / messages) และ FK, `member_id = NULL` แปลว่าอะไร, parameterized query, การ deploy Node.js บน Render, ลำดับ job ใน CI/CD, ทำไมไม่ commit `.env`
 
 ### Error Response ของ API
 ทุก error ตอบเป็น JSON `{ "code": "...", "error": "ข้อความภาษาไทย" }`
