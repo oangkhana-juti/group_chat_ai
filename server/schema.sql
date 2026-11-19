@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id, id);
 ALTER TABLE members ADD COLUMN IF NOT EXISTS responsibilities TEXT[] DEFAULT '{}';
 ALTER TABLE members ADD COLUMN IF NOT EXISTS linkedin TEXT;
+ALTER TABLE members ADD COLUMN IF NOT EXISTS github TEXT;
 ALTER TABLE members ADD COLUMN IF NOT EXISTS phone TEXT;
 ALTER TABLE members ADD COLUMN IF NOT EXISTS email TEXT;
 
@@ -64,6 +65,14 @@ BEGIN
   END IF;
 END $$;
 
+UPDATE members AS member
+SET skills = COALESCE(member.skills, ARRAY[]::TEXT[]) || ARRAY(
+  SELECT requested.skill
+  FROM unnest(ARRAY['HTML/CSS', 'JavaScript', 'Figma']::TEXT[]) AS requested(skill)
+  WHERE NOT (requested.skill = ANY(COALESCE(member.skills, ARRAY[]::TEXT[])))
+)
+WHERE member.name = 'อังคนา จุติ' AND member.nickname = 'อัง';
+
 UPDATE members
 SET responsibilities = array_remove(
   array_remove(responsibilities, 'ออกแบบหลักการทำงานของเครื่องแปลงกรดฟอร์มิกด้วย 3D'),
@@ -85,3 +94,47 @@ END
 WHERE (name = 'อังคนา จุติ' AND nickname = 'อัง')
    OR (name = 'สมชาย ใจดี' AND nickname = 'ชาย')
    OR (name = 'ธนภัค อัครธนาวัสส์' AND nickname = 'ขนุน');
+
+DO $$
+DECLARE
+  piemai_id INT;
+BEGIN
+  UPDATE members
+  SET name = 'กนกภรณ์ วงค์จันทเรือง',
+      nickname = 'ปีใหม่',
+      role = 'Backend Developer & AI Engineer',
+      bio = '',
+      skills = ARRAY['JavaScript', 'API Integration', 'Prompt Engineering', 'Node.js', 'Express'],
+      responsibilities = ARRAY[]::TEXT[],
+      phone = '0815184715',
+      email = 'beurqk@gmail.com',
+      linkedin = NULL
+  WHERE name = 'สมชาย ใจดี' AND nickname = 'ชาย'
+  RETURNING id INTO piemai_id;
+
+  IF piemai_id IS NOT NULL THEN
+    DELETE FROM projects WHERE member_id = piemai_id;
+    INSERT INTO projects (member_id, title, description, tech, url) VALUES
+      (piemai_id, 'AI Hackathon Route Optimization 2026', 'Top 21 Semifinalist', ARRAY[]::TEXT[], NULL),
+      (piemai_id, 'AIHack Thailand 2025 (AI x Financial Data)', 'Top 8 Finalist', ARRAY[]::TEXT[], NULL),
+      (piemai_id, 'SME Financial Inclusion Hackathon 2025', NULL, ARRAY[]::TEXT[], NULL);
+  END IF;
+END $$;
+
+UPDATE members
+SET email = 'beurqk@gmail.com'
+WHERE name = 'กนกภรณ์ วงค์จันทเรือง' AND nickname = 'ปีใหม่';
+
+UPDATE members
+SET github = CASE
+  WHEN name = 'อังคนา จุติ' AND nickname = 'อัง' THEN 'https://github.com/oangkhana-juti'
+  WHEN name = 'กนกภรณ์ วงค์จันทเรือง' AND nickname = 'ปีใหม่' THEN 'https://github.com/beurqk-bit'
+  WHEN name = 'ธนภัค อัครธนาวัสส์' AND nickname = 'ขนุน' THEN 'https://github.com/kanoonrobio-art'
+  ELSE github
+END
+WHERE (name = 'อังคนา จุติ' AND nickname = 'อัง')
+   OR (name = 'กนกภรณ์ วงค์จันทเรือง' AND nickname = 'ปีใหม่')
+   OR (name = 'ธนภัค อัครธนาวัสส์' AND nickname = 'ขนุน');
+
+DELETE FROM projects
+WHERE title = 'Campus Event Finder' AND member_id IS NULL;

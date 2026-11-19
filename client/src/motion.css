@@ -1,0 +1,65 @@
+html.motion-ready .reveal:not(.is-visible){
+  opacity:0;
+  transform:translateY(22px);
+}
+.reveal{
+  transition:opacity .65s ease var(--reveal-delay,0ms),transform .65s cubic-bezier(.2,.7,.2,1) var(--reveal-delay,0ms);
+}
+.hero-title.reveal{filter:blur(12px);transform:translateY(12px)}
+.hero-title.reveal.is-visible{filter:blur(0);transform:translateY(0);transition:opacity .9s ease,filter 1s ease,transform .9s ease}
+
+.hero-rings{animation:ring-breathe 5s ease-in-out infinite}
+.hero-rings::before{animation:ring-expand 4.5s ease-out infinite}
+.hero-rings::after{animation:ring-expand 4.5s ease-out 1.5s infinite}
+@keyframes ring-breathe{50%{opacity:.55;scale:1.04}}
+@keyframes ring-expand{0%{transform:scale(.88);opacity:.7}100%{transform:scale(1.12);opacity:0}}
+
+.spotlight{position:relative;isolation:isolate}
+.spotlight::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  opacity:0;
+  background:radial-gradient(230px circle at var(--pointer-x,50%) var(--pointer-y,50%),rgba(var(--spotlight-accent),.38),transparent 72%);
+  transition:opacity .25s ease;
+}
+.spotlight:hover::before{opacity:1}
+.spotlight>*{position:relative;z-index:1}
+.member.tilt-card{transform-style:preserve-3d;transition:transform .2s ease,border-color .25s,box-shadow .25s}
+.member.tilt-card:hover{transform:perspective(900px) rotateX(var(--tilt-y,0deg)) rotateY(var(--tilt-x,0deg)) translateY(-2px)}
+
+.magnetic{position:relative;transform:translate(var(--magnet-x,0px),var(--magnet-y,0px));transition:transform .2s ease,box-shadow .25s;overflow:hidden}
+.magnetic::after{
+  content:"";
+  position:absolute;
+  inset:-60% auto -60% -45%;
+  width:30%;
+  transform:rotate(18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+  transition:left .55s ease;
+  pointer-events:none;
+}
+.magnetic:hover::after{left:120%}
+.btn.magnetic:hover:not(:disabled){transform:translate(var(--magnet-x,0px),calc(var(--magnet-y,0px) - 2px))}
+
+.scroll-progress{position:fixed;z-index:100;inset:0 auto auto 0;width:100%;height:3px;transform:scaleX(0);transform-origin:left center;background:var(--scroll-accent);box-shadow:0 0 12px color-mix(in srgb,var(--scroll-accent) 65%,transparent);pointer-events:none}
+.nav.is-scrolled{padding-top:7px;padding-bottom:7px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+
+.row.user{animation:message-from-right .36s cubic-bezier(.2,.7,.2,1) both}
+.row.assistant{animation:message-from-left .36s cubic-bezier(.2,.7,.2,1) both}
+@keyframes message-from-right{from{opacity:0;transform:translateX(18px) scale(.98)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes message-from-left{from{opacity:0;transform:translateX(-18px) scale(.98)}to{opacity:1;transform:translateX(0) scale(1)}}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  html.motion-ready .reveal:not(.is-visible){opacity:1;transform:none}
+  .hero-title.reveal{filter:none}
+  .hero-rings,.hero-rings::before,.hero-rings::after{animation:none}
+  .spotlight::before,.magnetic::after{display:none}
+  .member.tilt-card,.magnetic,.reveal{transition:none!important}
+  .row.user,.row.assistant{animation:none}
+  .scroll-progress{box-shadow:none}
+}

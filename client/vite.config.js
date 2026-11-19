@@ -7,9 +7,13 @@ import { fileURLToPath } from 'url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, root, '');
-  const apiUrl = env.API_URL || `http://localhost:${env.PORT || 3001}`;
-  const apiProxy = { '/api': apiUrl };
+  const env = {
+    ...loadEnv(mode, root, ''),
+    ...loadEnv(mode, path.resolve(root, 'server'), ''),
+  };
+  const apiTarget = new URL(env.API_URL || `http://127.0.0.1:${env.PORT || 3001}`);
+  if (apiTarget.hostname === 'localhost') apiTarget.hostname = '127.0.0.1';
+  const apiProxy = { '/api': apiTarget.toString() };
 
   return {
     base: env.VITE_BASE_PATH || '/',

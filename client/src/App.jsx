@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Portfolio from './Portfolio.jsx';
 import MemberPage from './MemberPage.jsx';
 import Chat from './Chat.jsx';
+import { label } from './i18n.js';
 
 // hash routing: #/  |  #/member/:id  |  #/chat
 function parse() {
   const h = location.hash.replace(/^#/, '') || '/';
+  const section = h.match(/^\/section\/(about|projects|members|contact)$/);
+  if (section) return { page: 'home', section: section[1] };
   const m = h.match(/^\/member\/(\d+)/);
   if (m) return { page: 'member', id: Number(m[1]) };
   return { page: h.startsWith('/chat') ? 'chat' : 'home' };
@@ -13,24 +16,101 @@ function parse() {
 
 export default function App() {
   const [route, setRoute] = useState(parse);
+  const [language, setLanguage] = useState(() => localStorage.getItem('language') === 'en' ? 'en' : 'th');
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme === 'light' || savedTheme === 'dark'
+      ? savedTheme
+      : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+  useEffect(() => { document.documentElement.lang = language; }, [language]);
   useEffect(() => {
-    const onHash = () => { setRoute(parse()); window.scrollTo(0, 0); };
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+  useEffect(() => {
+    const onHash = () => {
+      const nextRoute = parse();
+      setRoute(nextRoute);
+      if (!nextRoute.section) window.scrollTo(0, 0);
+    };
     addEventListener('hashchange', onHash);
     return () => removeEventListener('hashchange', onHash);
   }, []);
   const { page } = route;
+
+  function toggleLanguage() {
+    const nextLanguage = language === 'th' ? 'en' : 'th';
+    localStorage.setItem('language', nextLanguage);
+    setLanguage(nextLanguage);
+  }
+
+  function toggleTheme() {
+    setTheme((current) => current === 'dark' ? 'light' : 'dark');
+  }
+
+  const scrollToFeature = useCallback((section) => {
+    const target = document.getElementById(section);
+    if (!target) return;
+    const navHeight = document.querySelector('.nav')?.getBoundingClientRect().height || 0;
+    let targetTop = 0;
+    for (let element = target; element; element = element.offsetParent) targetTop += element.offsetTop;
+    const top = Math.max(0, targetTop - navHeight + 15);
+    window.scrollTo({
+      top,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    });
+  }, []);
+
+  function scrollToSection(event, section) {
+    if (location.hash !== `#/section/${section}`) return;
+    event.preventDefault();
+    scrollToFeature(section);
+  }
+
+  function scrollHomeToTop(event) {
+    if (location.hash !== '#/') return;
+    event.preventDefault();
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    });
+  }
 
   return (
     <>
       <div className="blobs" aria-hidden="true"><i /><i /><i /></div>
       <nav className="nav">
         <a href="#/" className="logo">◐ Do Ra E <span>Mo Nueng</span></a>
-        <div>
-          <a href="#/" className={page !== 'chat' ? 'active' : ''}>Portfolio</a>
-          <a href="#/chat" className={page === 'chat' ? 'active' : ''}>💬 คุยกับ AI</a>
+        <div className="nav-menu">
+          <div className="nav-links">
+            <a href="#/" onClick={scrollHomeToTop} className={!route.section && page !== 'chat' ? 'active' : ''}>{label(language, 'หน้าหลัก', 'Homepage')}</a>
+            <a href="#/section/about" onClick={(event) => scrollToSection(event, 'about')} className={route.section === 'about' ? 'active' : ''}>{label(language, 'เกี่ยวกับทีม', 'ABOUT OUR TEAM')}</a>
+            <a href="#/section/projects" onClick={(event) => scrollToSection(event, 'projects')} className={route.section === 'projects' ? 'active' : ''}>{label(language, 'ผลงานของทีม', 'GROUP PROJECTS')}</a>
+            <a href="#/section/members" onClick={(event) => scrollToSection(event, 'members')} className={route.section === 'members' ? 'active' : ''}>{label(language, 'สมาชิกในทีม', 'OUR MEMBERS')}</a>
+            <a href="#/section/contact" onClick={(event) => scrollToSection(event, 'contact')} className={route.section === 'contact' ? 'active' : ''}>{label(language, 'ติดต่อเรา', 'GET IN TOUCH')}</a>
+            <a href="#/chat" className={page === 'chat' ? 'active' : ''}>{label(language, '💬 คุยกับ AI', '💬 AI Chat')}</a>
+          </div>
+          <div className="nav-actions">
+            <button className="language-toggle" onClick={toggleLanguage} aria-label={language === 'th' ? 'Switch to English' : 'เปลี่ยนเป็นภาษาไทย'}>
+              {language === 'th' ? 'EN' : 'ไทย'}
+            </button>
+            <button
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={label(language, theme === 'dark' ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode')}
+              aria-pressed={theme === 'dark'}
+            >
+              {theme === 'dark' ? '☀' : '☾'}
+            </button>
+          </div>
         </div>
       </nav>
-      {page === 'chat' ? <Chat /> : page === 'member' ? <MemberPage id={route.id} /> : <Portfolio />}
+      {page === 'chat'
+        ? <Chat language={language} />
+        : page === 'member'
+          ? <MemberPage id={route.id} language={language} />
+          : <Portfolio language={language} section={route.section} onScrollToSection={scrollToFeature} />}
     </>
   );
 }

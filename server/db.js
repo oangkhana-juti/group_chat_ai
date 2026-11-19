@@ -22,7 +22,8 @@ export async function init(retries = 15) {
       }
       return;
     } catch (e) {
-      console.log(`DB not ready (${e.message}), retrying...`);
+      const reason = e.message || e.code || e.name || 'unknown error';
+      console.log(`DB not ready (${reason}), retrying...`);
       await new Promise((r) => setTimeout(r, 2000));
     }
   }

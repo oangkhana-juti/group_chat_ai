@@ -1,9 +1,9 @@
-# 🤖 TeamFolio — Chat AI พร้อม Portfolio ของกลุ่ม
+# 🤖 Do Ra E Mo Nueng  — Chat AI พร้อม Portfolio ของกลุ่ม
 
 เว็บแอปให้ผู้เยี่ยมชมดู Portfolio ของทีมและสมาชิกแต่ละคน และพูดคุยกับ AI ที่ตอบโดยอิงข้อมูลของกลุ่มและสมาชิกทุกคน
 
 - 🌐 เว็บที่ deploy แล้ว: `ใส่ลิงก์ที่นี่`
-- 👥 สมาชิก: `ใส่ชื่อสมาชิก`
+- 👥 สมาชิก: `อังคนา จุติ` , `ธนภัค อัครธนาวัสส์` , `กนกภรณ์ วงค์จันทเรือง`
 
 ## สถาปัตยกรรม
 
@@ -43,12 +43,12 @@ React (Vite)  ──/api──▶  Express  ──▶  PostgreSQL (team, members
 แก้ `server/seed.sql` (ชื่อกลุ่ม แนวคิด สมาชิก ทักษะ ผลงาน ช่องทางติดต่อ) — seed ทำงานอัตโนมัติเมื่อตาราง `team` ว่าง
 
 ## Run on localhost
-ต้องมี Node.js 20+, PostgreSQL 16+ ที่เปิดใช้งานอยู่ (ติดตั้งในเครื่องหรือใช้ฐานข้อมูลบนคลาวด์) และไฟล์ `.env` ที่ root ของโปรเจกต์
+ต้องมี Node.js 20+, PostgreSQL 16+ ที่เปิดใช้งานอยู่ (ติดตั้งในเครื่องหรือใช้ฐานข้อมูลบนคลาวด์) และไฟล์ `.env` ที่ root หรือ `server/`
 ```bash
 npm install                 # ติดตั้ง dependencies ครั้งเดียว
 npm run dev                 # Frontend :3000 และ API :3001
 ```
-บน PowerShell ให้คัดลอกไฟล์ตัวอย่างก่อนด้วย `Copy-Item .env.example .env`
+บน PowerShell ให้คัดลอกไฟล์ตัวอย่างก่อนด้วย `Copy-Item server/.env.example server/.env`
 ตั้ง `DATABASE_URL` ให้ชี้ไปยัง PostgreSQL ที่เปิดอยู่ และใส่ `ANTHROPIC_API_KEY` หากต้องการใช้แชต AI คำสั่ง `npm run dev` ไม่ได้เริ่มฐานข้อมูลให้โดยอัตโนมัติ; Vite ส่ง `/api` ไปยัง `API_URL` (ค่าเริ่มต้น `http://localhost:3001`)
 
 ```bash
