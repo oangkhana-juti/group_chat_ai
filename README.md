@@ -78,7 +78,7 @@ npm run preview               # preview ที่ http://localhost:4173
 3. **deploy** (เฉพาะ push เข้า `main`) — trigger Render Web Service
 
 ## 🔐 ความปลอดภัย
-- API key อยู่ฝั่ง server เท่านั้น ไม่ถูกส่งไปที่ browser
+- API key อยู่ฝั่ง server เท่านั้น ไม่ถูกส่งไปที่ browser 
 - ใช้ `.env.example` เป็นแม่แบบ
 - จำกัดความยาวข้อความ 1,000 ตัวอักษร และใช้ parameterized query ทุกจุด
 
