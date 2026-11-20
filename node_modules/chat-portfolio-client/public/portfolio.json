@@ -1,0 +1,78 @@
+{
+  "team": {
+    "name": "Do Ra E Mo Nueng",
+    "tagline": "สามคน สามสาย หนึ่งผลงานที่ใช้ได้จริง",
+    "concept": "ทีมนักพัฒนา 3 คนที่แบ่งบทบาทชัดเจน ได้แก่ Frontend/UX, Backend/AI และ Database/DevOps ทำงานเป็นระบบด้วย Git + Pull Request และ deploy อัตโนมัติ เพื่อให้ส่งงานได้เร็วและตรวจสอบได้",
+    "highlights": [
+      "แบ่งบทบาทชัดเจน ครบตั้งแต่หน้าเว็บ AI ฐานข้อมูล จนถึง deploy",
+      "ออกแบบ UI ก่อนเขียนโค้ดเสมอ",
+      "AI ตอบจากข้อมูลจริงในฐานข้อมูล ไม่แต่งเอง",
+      "CI/CD อัตโนมัติ ทุก push ถูกทดสอบก่อน deploy"
+    ]
+  },
+  "groupProjects": [
+    {
+      "id": 1,
+      "title": "Chat AI พร้อม Portfolio",
+      "description": "เว็บแอปให้ผู้เยี่ยมชมคุยกับ AI เพื่อถามเรื่องของทีมและสมาชิก",
+      "tech": ["React", "Express", "PostgreSQL", "Claude API", "GitHub Actions"],
+      "url": null
+    }
+  ],
+  "members": [
+    {
+      "id": 1,
+      "name": "อังคนา จุติ",
+      "nickname": "อัง",
+      "role": "Frontend Developer & UI/UX Designer",
+      "bio": "รับผิดชอบการออกแบบ UI/UX และงาน Frontend พร้อมใช้ทักษะ Leadership ในการทำงานร่วมกับทีม",
+      "skills": ["ออกแบบ UI/UX", "Leadership", "HTML/CSS", "JavaScript", "Figma"],
+      "responsibilities": ["ออกแบบ UI/UX สำหรับเว็บไซต์", "พัฒนา Frontend"],
+      "email": "oangkhanajuti@gmail.com",
+      "linkedin": "https://www.linkedin.com/in/oangkhana-juti-301a573b0/",
+      "github": "https://github.com/oangkhana-juti",
+      "phone": null,
+      "projects": [
+        {"id": 3, "title": "ออกแบบหลักการทำงานของเครื่องแปลงกรดฟอร์มิกด้วย 3D", "description": "ออกแบบและสื่อสารหลักการทำงานของเครื่องผ่านโมเดล 3D", "tech": ["3D Design"], "url": null},
+        {"id": 4, "title": "ออกแบบเว็บไซต์", "description": "ออกแบบหน้าเว็บและประสบการณ์ใช้งานเว็บไซต์", "tech": ["UI/UX Design"], "url": null},
+        {"id": 5, "title": "เว็บไซต์ตรวจทานคำภาษาไทย", "description": "ออกแบบเว็บไซต์สำหรับตรวจทานคำภาษาไทย", "tech": ["UI/UX Design", "Web Design"], "url": null},
+        {"id": 6, "title": "Google Student Ambassador รุ่นที่ 2", "description": "เป็น Google Student Ambassador รุ่นที่ 2", "tech": [], "url": null}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "กนกภรณ์ วงค์จันทเรือง",
+      "nickname": "ปีใหม่",
+      "role": "Backend Developer & AI Engineer",
+      "bio": "",
+      "skills": ["JavaScript", "API Integration", "Prompt Engineering", "Node.js", "Express"],
+      "responsibilities": [],
+      "email": "beurqk@gmail.com",
+      "phone": "0815184715",
+      "linkedin": null,
+      "github": "https://github.com/beurqk-bit",
+      "projects": [
+        {"id": 7, "title": "AI Hackathon Route Optimization 2026", "description": "Top 21 Semifinalist", "tech": [], "url": null},
+        {"id": 8, "title": "AIHack Thailand 2025 (AI x Financial Data)", "description": "Top 8 Finalist", "tech": [], "url": null},
+        {"id": 9, "title": "SME Financial Inclusion Hackathon 2025", "description": null, "tech": [], "url": null}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "ธนภัค อัครธนาวัสส์",
+      "nickname": "ขนุน",
+      "role": "Database Engineer & DevOps",
+      "bio": "ออกแบบฐานข้อมูล PostgreSQL และดูแลระบบ build/deploy ให้ออนไลน์ตลอด",
+      "skills": ["PostgreSQL", "SQL", "Docker", "GitHub Actions", "CI/CD", "Linux", "Environment Management"],
+      "responsibilities": ["ออกแบบฐานข้อมูล PostgreSQL", "สร้างตารางสมาชิกและ Portfolio", "เชื่อมต่อ Database กับ Backend", "ตั้งค่า GitHub Actions", "จัดการ Environment Variables"],
+      "email": "kanoonrobio@gmail.com",
+      "phone": "0821071919",
+      "linkedin": null,
+      "github": "https://github.com/kanoonrobio-art",
+      "projects": [
+        {"id": 10, "title": "Auto Deploy Pipeline", "description": "pipeline build/test/deploy อัตโนมัติด้วย GitHub Actions", "tech": ["Docker", "GitHub Actions"], "url": null},
+        {"id": 11, "title": "Student DB Design", "description": "ออกแบบ ER diagram และ schema ระบบทะเบียนนักศึกษา", "tech": ["PostgreSQL", "SQL"], "url": null}
+      ]
+    }
+  ]
+}
