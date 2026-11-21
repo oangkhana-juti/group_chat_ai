@@ -53,6 +53,16 @@ app.get('/api/chat/:sessionId', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+app.delete('/api/chat/:sessionId', async (req, res, next) => {
+  try {
+    if (!req.params.sessionId) {
+      return res.status(400).json({ code: 'BAD_REQUEST', error: 'ต้องระบุ sessionId' });
+    }
+    await pool.query('DELETE FROM messages WHERE session_id=$1', [req.params.sessionId]);
+    res.status(204).end();
+  } catch (e) { next(e); }
+});
+
 app.post('/api/chat', async (req, res, next) => {
   try {
     const { sessionId, message } = req.body || {};

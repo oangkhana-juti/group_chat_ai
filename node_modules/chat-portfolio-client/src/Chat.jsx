@@ -135,7 +135,9 @@ export default function Chat({ language }) {
         localStorage.setItem(sessionsKey(), JSON.stringify(mergedSessions));
         setSessions(mergedSessions);
       })
-      .catch(() => {});
+      .catch(() => {
+        setSessions(localSessions);
+      });
   }
 
   useEffect(() => {
@@ -181,7 +183,7 @@ export default function Chat({ language }) {
       const next = [...currentMessages, { id, role: 'assistant', content: reply }];
       saveHistory(sessionId, next);
       saveSession(sessionId, next);
-      setSessions(readSessions());
+      refreshSessions();
       return next;
     });
   }
@@ -237,10 +239,23 @@ export default function Chat({ language }) {
     setHistoryOpen(false);
   }
 
-  function deleteSession(id) {
-    removeSession(id);
-    setSessions(readSessions());
-    if (id === sessionId) newChat();
+  async function deleteSession(id) {
+    try {
+      const r = await fetch(apiUrl(`/api/chat/${encodeURIComponent(id)}`), { method: 'DELETE' });
+      if (!r.ok) {
+        const data = await r.json();
+        throw new Error(data.error || 'ลบประวัติไม่สำเร็จ');
+      }
+    } catch (e) {
+      setError(e instanceof TypeError
+        ? label(language, 'ลบประวัติบนเซิร์ฟเวอร์ไม่ได้ แต่ลบประวัตินี้ออกจากเครื่องแล้ว', 'Could not delete server history, but removed it from this device.')
+        : e.message);
+    } finally {
+      removeSession(id);
+      setSessions(readSessions());
+      refreshSessions();
+      if (id === sessionId) newChat();
+    }
   }
 
   const filteredSessions = sessions.filter((session) => {
