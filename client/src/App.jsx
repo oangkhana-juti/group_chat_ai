@@ -184,7 +184,7 @@ export default function App({ initiallyOpen }) {
           <span className="logo-mark" aria-hidden="true">◐</span>
           {teamName
             ? <span className="logo-name">{logoPrefix ? `${logoPrefix} ` : ''}<span>{logoTail}</span></span>
-            : <span className="logo-name">Portfolio</span>}
+            : <span className="logo-name">Do Ra E Mo Song</span>}
         </a>
         <div className="nav-menu">
           <div className="nav-links">
