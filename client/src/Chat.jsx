@@ -304,7 +304,7 @@ export default function Chat({ language }) {
         </div>
       </aside>
       <header>
-        <div><b>🤖 Do Ra E Mo Nueng AI</b><small>{label(language, 'ตอบจากข้อมูลของทีมเท่านั้น', 'Answers based on team information')}</small></div>
+        <div><b><span className="chat-sigil" aria-hidden="true">✦</span> {label(language, 'ผู้ช่วยเวทมนตร์ของทีม', 'Team Spellbook AI')}</b><small>{label(language, 'ตอบจากข้อมูลของทีมเท่านั้น', 'Answers based on team information')}</small></div>
         <div className="chat-actions">
           <button className="ghost" onClick={() => setHistoryOpen(true)}>{label(language, 'ประวัติ', 'History')}</button>
           <button className="ghost" onClick={newChat}>{label(language, '+ แชตใหม่', '+ New chat')}</button>
@@ -314,7 +314,7 @@ export default function Chat({ language }) {
       <div className="msgs">
         {messages.length === 0 && (
           <div className="empty">
-            <p>{label(language, '👋 สวัสดี! ลองถามเกี่ยวกับทีมหรือสมาชิกได้เลย', '👋 Hi! Ask me about the team or its members.')}</p>
+            <p>{label(language, 'ยินดีต้อนรับ! ลองถามเกี่ยวกับทีมหรือสมาชิกได้เลย', 'Welcome! Ask me about the team or its members.')}</p>
             <div className="chips big">
               {SUGGESTIONS[language].map((suggestion) => <button className="magnetic" key={suggestion} onClick={() => send(suggestion)}>{suggestion}</button>)}
             </div>
@@ -322,7 +322,7 @@ export default function Chat({ language }) {
         )}
         {messages.map((m, i) => (
           <div key={m.id || i} className={`row ${m.role}`}>
-            <span className="who">{m.role === 'user' ? '🧑' : '🤖'}</span>
+            <span className="who" aria-hidden="true">{m.role === 'user' ? '◐' : '✦'}</span>
             <div className="bubble">
               {m.id === typingMessageId
                 ? <TypedText text={m.content} onComplete={() => setTypingMessageId((current) => current === m.id ? null : current)} />
@@ -331,7 +331,7 @@ export default function Chat({ language }) {
           </div>
         ))}
         {loading && (
-          <div className="row assistant"><span className="who">🤖</span>
+          <div className="row assistant"><span className="who" aria-hidden="true">✦</span>
             <div className="bubble typing"><i /><i /><i /></div></div>
         )}
         {error && <p className="err">⚠️ {error}</p>}

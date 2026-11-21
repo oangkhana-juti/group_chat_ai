@@ -5,19 +5,21 @@ const MAGNETIC = '.magnetic';
 
 export function bootMotion() {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const finePointer = window.matchMedia('(pointer: fine)').matches;
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const cleanups = [];
   const revealed = new WeakSet();
   const spotlighted = new WeakSet();
   const tilted = new WeakSet();
   const magnetized = new WeakSet();
   const root = document.documentElement;
+  let introPaused = root.classList.contains('intro-active');
   root.classList.add('motion-ready');
 
   const revealObserver = !reducedMotion && 'IntersectionObserver' in window
     ? new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
+          if (introPaused) return;
           entry.target.classList.add('is-visible');
           observer.unobserve(entry.target);
         }
@@ -37,7 +39,7 @@ export function bootMotion() {
     const siblings = Array.from(element.parentElement?.children || [])
       .filter((child) => child.matches(REVEAL));
     const index = Math.max(0, siblings.indexOf(element));
-    element.style.setProperty('--reveal-delay', `${Math.min(index, 6) * 70}ms`);
+    element.style.setProperty('--reveal-delay', `${Math.min(index, 6) * 90}ms`);
     revealObserver.observe(element);
   }
 
@@ -69,8 +71,8 @@ export function bootMotion() {
       const rect = element.getBoundingClientRect();
       const x = (event.clientX - rect.left) / rect.width - 0.5;
       const y = (event.clientY - rect.top) / rect.height - 0.5;
-      element.style.setProperty('--tilt-x', `${(x * 6).toFixed(2)}deg`);
-      element.style.setProperty('--tilt-y', `${(-y * 6).toFixed(2)}deg`);
+      element.style.setProperty('--tilt-x', `${(x * 9).toFixed(2)}deg`);
+      element.style.setProperty('--tilt-y', `${(-y * 9).toFixed(2)}deg`);
     };
     const reset = () => {
       element.style.setProperty('--tilt-x', '0deg');
@@ -128,25 +130,89 @@ export function bootMotion() {
   });
   mutationObserver.observe(document.body, { childList: true, subtree: true });
 
+  const pausePageMotion = () => {
+    introPaused = true;
+    document.querySelectorAll(REVEAL).forEach((element) => element.classList.remove('is-visible'));
+  };
+  const releasePageMotion = () => {
+    introPaused = false;
+    document.querySelectorAll(REVEAL).forEach((element) => {
+      const rect = element.getBoundingClientRect();
+      if (rect.bottom >= 0 && rect.top <= window.innerHeight) {
+        element.classList.add('is-visible');
+        revealObserver?.unobserve(element);
+      } else {
+        revealObserver?.observe(element);
+      }
+    });
+  };
+  window.addEventListener('intro:pause', pausePageMotion);
+  window.addEventListener('intro:release', releasePageMotion);
+
   let scrollFrame = 0;
   const updateScrollEffects = () => {
     if (scrollFrame) return;
     scrollFrame = window.requestAnimationFrame(() => {
       scrollFrame = 0;
       document.querySelector('.nav')?.classList.toggle('is-scrolled', window.scrollY > 24);
+      const progress = document.querySelector('.scroll-progress');
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      if (progress) progress.style.transform = `scaleX(${scrollable > 0 ? window.scrollY / scrollable : 0})`;
     });
   };
   window.addEventListener('scroll', updateScrollEffects, { passive: true });
   window.addEventListener('resize', updateScrollEffects, { passive: true });
   updateScrollEffects();
 
+  let auraFrame = 0;
+  let auraX = 0;
+  let auraY = 0;
+  const aura = document.querySelector('.magic-aura');
+  const updateAura = (event) => {
+    if (reducedMotion || !finePointer || !aura) return;
+    auraX = event.clientX;
+    auraY = event.clientY;
+    if (auraFrame) return;
+    auraFrame = window.requestAnimationFrame(() => {
+      auraFrame = 0;
+      aura.style.setProperty('--aura-x', `${auraX}px`);
+      aura.style.setProperty('--aura-y', `${auraY}px`);
+    });
+  };
+  if (finePointer && !reducedMotion && aura) {
+    window.addEventListener('pointermove', updateAura, { passive: true });
+  }
+
+  let lastSparkAt = 0;
+  const addCursorSpark = (event) => {
+    if (reducedMotion || !finePointer || event.pointerType !== 'mouse') return;
+    const now = performance.now();
+    if (now - lastSparkAt < 45) return;
+    lastSparkAt = now;
+    const spark = document.createElement('i');
+    spark.className = 'cursor-spark';
+    spark.style.left = `${event.clientX}px`;
+    spark.style.top = `${event.clientY}px`;
+    spark.style.setProperty('--spark-size', `${8 + Math.random() * 8}px`);
+    spark.style.setProperty('--spark-dx', `${(Math.random() - 0.5) * 48}px`);
+    spark.style.setProperty('--spark-dy', `${(Math.random() - 0.5) * 48}px`);
+    document.body.appendChild(spark);
+    window.setTimeout(() => spark.remove(), 900);
+  };
+  window.addEventListener('pointermove', addCursorSpark, { passive: true });
+
   return () => {
     mutationObserver.disconnect();
     revealObserver?.disconnect();
     window.removeEventListener('scroll', updateScrollEffects);
     window.removeEventListener('resize', updateScrollEffects);
+    window.removeEventListener('pointermove', updateAura);
+    window.removeEventListener('pointermove', addCursorSpark);
+    window.removeEventListener('intro:pause', pausePageMotion);
+    window.removeEventListener('intro:release', releasePageMotion);
     cleanups.forEach((cleanup) => cleanup());
     if (scrollFrame) window.cancelAnimationFrame(scrollFrame);
+    if (auraFrame) window.cancelAnimationFrame(auraFrame);
     root.classList.remove('motion-ready');
   };
 }

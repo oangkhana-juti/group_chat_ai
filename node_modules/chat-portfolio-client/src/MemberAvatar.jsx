@@ -5,13 +5,15 @@ export default function MemberAvatar({ member, large = false, language }) {
   if (photo) {
     return (
       <div className={className}>
-        <img
-          src={`${import.meta.env.BASE_URL}${photo}`}
-          alt={language === 'en' ? `Photo of ${member.name}` : `รูปโปรไฟล์ของ${member.name}`}
-        />
+        <span className="avatar-photo-frame">
+          <img
+            src={`${import.meta.env.BASE_URL}${photo}`}
+            alt={language === 'en' ? `Photo of ${member.name}` : `รูปโปรไฟล์ของ${member.name}`}
+          />
+        </span>
       </div>
     );
   }
 
-  return <div className={className}>{member.role?.trim()?.[0] || member.emoji}</div>;
+  return <div className={className}>{member.role?.trim()?.[0] || member.nickname?.trim()?.[0] || ''}</div>;
 }

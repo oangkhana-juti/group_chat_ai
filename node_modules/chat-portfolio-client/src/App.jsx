@@ -3,6 +3,8 @@ import Portfolio from './Portfolio.jsx';
 import MemberPage from './MemberPage.jsx';
 import Chat from './Chat.jsx';
 import { label } from './i18n.js';
+import { apiUrl } from './api.js';
+import IntroGate from './IntroGate.jsx';
 
 // hash routing: #/  |  #/member/:id  |  #/chat
 function parse() {
@@ -14,20 +16,51 @@ function parse() {
   return { page: h.startsWith('/chat') ? 'chat' : 'home' };
 }
 
-export default function App() {
+export default function App({ initiallyOpen }) {
   const [route, setRoute] = useState(parse);
   const [activeSection, setActiveSection] = useState(() => parse().section || null);
+  const [teamName, setTeamName] = useState('');
+  const [introReplay, setIntroReplay] = useState(0);
+  const [stars] = useState(() => Array.from({ length: 60 }, () => ({
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
+    size: `${2 + Math.random() * 3}px`,
+    duration: `${2 + Math.random() * 4}s`,
+    delay: `${Math.random() * -6}s`,
+  })));
   const [language, setLanguage] = useState(() => localStorage.getItem('language') === 'en' ? 'en' : 'th');
   const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
+    let savedTheme = null;
+    try {
+      savedTheme = localStorage.getItem('theme');
+    } catch (error) {
+      console.error('Could not read the saved theme preference.', error);
+    }
     return savedTheme === 'light' || savedTheme === 'dark'
       ? savedTheme
       : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
+  useEffect(() => {
+    let active = true;
+    fetch(apiUrl('/api/portfolio'))
+      .then((response) => {
+        if (!response.ok) throw new Error(`Portfolio request failed (${response.status}).`);
+        return response.json();
+      })
+      .then((data) => {
+        if (active && typeof data.team?.name === 'string') setTeamName(data.team.name);
+      })
+      .catch((error) => console.error('Could not load the team name for navigation.', error));
+    return () => { active = false; };
+  }, []);
   useEffect(() => { document.documentElement.lang = language; }, [language]);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem('theme', theme);
+    try {
+      localStorage.setItem('theme', theme);
+    } catch (error) {
+      console.error('Could not save the theme preference.', error);
+    }
   }, [theme]);
   useEffect(() => {
     const onHash = () => {
@@ -40,6 +73,9 @@ export default function App() {
     return () => removeEventListener('hashchange', onHash);
   }, []);
   const { page } = route;
+  const logoParts = teamName.trim().split(/\s+/);
+  const logoTail = teamName ? logoParts.pop() : '';
+  const logoPrefix = logoParts.join(' ');
 
   useEffect(() => {
     if (page !== 'home') return undefined;
@@ -110,19 +146,54 @@ export default function App() {
 
   return (
     <>
-      <div className="blobs" aria-hidden="true"><i /><i /><i /></div>
+      <IntroGate
+        teamName={teamName}
+        language={language}
+        initiallyOpen={initiallyOpen}
+        replayKey={introReplay}
+      />
+      <div className="magic-field" aria-hidden="true">
+        {stars.map((star, index) => (
+          <i
+            key={index}
+            style={{
+              left: star.left,
+              top: star.top,
+              width: star.size,
+              height: star.size,
+              '--spark-duration': star.duration,
+              '--spark-delay': star.delay,
+            }}
+          />
+        ))}
+        <span className="moon moon-main" />
+        <span className="moon moon-small" />
+      </div>
+      <div className="magic-aura" aria-hidden="true" />
+      <div className="scroll-progress" aria-hidden="true" />
       <nav className="nav">
-        <a href="#/" className="logo">◐ Do Ra E <span>Mo Nueng</span></a>
+        <a href="#/" className="logo" onClick={scrollHomeToTop}>
+          <span className="logo-mark" aria-hidden="true">◐</span>
+          {teamName
+            ? <span className="logo-name">{logoPrefix ? `${logoPrefix} ` : ''}<span>{logoTail}</span></span>
+            : <span className="logo-name">Portfolio</span>}
+        </a>
         <div className="nav-menu">
           <div className="nav-links">
             <a href="#/" onClick={scrollHomeToTop} className={!activeSection && page !== 'chat' ? 'active' : ''}>{label(language, 'หน้าหลัก', 'Homepage')}</a>
-            <a href="#/section/about" onClick={(event) => scrollToSection(event, 'about')} className={activeSection === 'about' ? 'active' : ''}>{label(language, 'เกี่ยวกับทีม', 'ABOUT OUR TEAM')}</a>
-            <a href="#/section/projects" onClick={(event) => scrollToSection(event, 'projects')} className={activeSection === 'projects' ? 'active' : ''}>{label(language, 'ผลงานของทีม', 'GROUP PROJECTS')}</a>
-            <a href="#/section/members" onClick={(event) => scrollToSection(event, 'members')} className={activeSection === 'members' ? 'active' : ''}>{label(language, 'สมาชิกในทีม', 'OUR MEMBERS')}</a>
-            <a href="#/section/contact" onClick={(event) => scrollToSection(event, 'contact')} className={activeSection === 'contact' ? 'active' : ''}>{label(language, 'ติดต่อเรา', 'GET IN TOUCH')}</a>
+            <a href="#/section/about" onClick={(event) => scrollToSection(event, 'about')} className={activeSection === 'about' ? 'active' : ''}>{label(language, 'เกี่ยวกับทีม', 'About our team')}</a>
+            <a href="#/section/projects" onClick={(event) => scrollToSection(event, 'projects')} className={activeSection === 'projects' ? 'active' : ''}>{label(language, 'ผลงานของทีม', 'Group projects')}</a>
+            <a href="#/section/members" onClick={(event) => scrollToSection(event, 'members')} className={activeSection === 'members' ? 'active' : ''}>{label(language, 'สมาชิกในทีม', 'Our members')}</a>
+            <a href="#/section/contact" onClick={(event) => scrollToSection(event, 'contact')} className={activeSection === 'contact' ? 'active' : ''}>{label(language, 'ติดต่อเรา', 'Get in touch')}</a>
             <a href="#/chat" className={page === 'chat' ? 'active' : ''}>{label(language, '💬 คุยกับ AI', '💬 AI Chat')}</a>
           </div>
           <div className="nav-actions">
+            <button
+              className="intro-toggle"
+              onClick={() => setIntroReplay((current) => current + 1)}
+              aria-label={label(language, 'เล่นฉากเปิดอีกครั้ง', 'Replay the intro')}
+              title={label(language, 'เล่นฉากเปิดอีกครั้ง', 'Replay the intro')}
+            >✦</button>
             <button className="language-toggle" onClick={toggleLanguage} aria-label={language === 'th' ? 'Switch to English' : 'เปลี่ยนเป็นภาษาไทย'}>
               {language === 'th' ? 'EN' : 'ไทย'}
             </button>
@@ -131,9 +202,7 @@ export default function App() {
               onClick={toggleTheme}
               aria-label={label(language, theme === 'dark' ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode')}
               aria-pressed={theme === 'dark'}
-            >
-              {theme === 'dark' ? '☀' : '☾'}
-            </button>
+            >◑</button>
           </div>
         </div>
       </nav>

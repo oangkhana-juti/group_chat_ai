@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiUrl } from './api.js';
 import MemberAvatar from './MemberAvatar.jsx';
 import { content, label } from './i18n.js';
+import { getMemberClass } from './memberClass.js';
 
 const COLORS = ['#e59ab0', '#6fb1ea', '#8fd3a4'];
 
@@ -51,6 +52,7 @@ export default function MemberPage({ id, language }) {
         <div>
           <p className="eyebrow">MEMBER {String(idx + 1).padStart(2, '0')} / {String(data.members.length).padStart(2, '0')}</p>
           <h1>{m.name}</h1>
+          <span className="cls">✦ {getMemberClass(m, idx, language)}</span>
           <p className="role">{m.role}</p>
           {m.bio && <p className="lead">{content(m.bio, language)}</p>}
           <button className="btn magnetic" onClick={askAI}>{label(language, `💬 ถาม AI เกี่ยวกับ${m.nickname}`, `💬 Ask AI about ${m.nickname}`)}</button>

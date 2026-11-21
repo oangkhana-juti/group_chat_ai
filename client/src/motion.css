@@ -1,3 +1,4 @@
+:root{--fx:255,206,90}
 html.motion-ready .reveal:not(.is-visible){
   opacity:0;
   transform:translateY(22px);
@@ -13,6 +14,109 @@ html.motion-ready .reveal:not(.is-visible){
 .hero-rings::after{animation:ring-expand 4.5s ease-out 1.5s infinite}
 @keyframes ring-breathe{50%{opacity:.55;scale:1.04}}
 @keyframes ring-expand{0%{transform:scale(.88);opacity:.7}100%{transform:scale(1.12);opacity:0}}
+.hero-mark{animation:magic-mark 3.2s ease-in-out infinite}
+@keyframes magic-mark{50%{box-shadow:0 0 0 8px rgba(var(--ac),.04),0 0 28px rgba(var(--ac),.65);transform:rotate(12deg) scale(1.08)}}
+.magic-field i{animation:magic-spark var(--spark-duration,6s) ease-in-out var(--spark-delay,0s) infinite alternate}
+.magic-field i:nth-child(3n){--spark-duration:8.5s;--spark-delay:-2.4s}
+.magic-field i:nth-child(3n+1){--spark-duration:7.2s;--spark-delay:-4.1s}
+@keyframes magic-spark{0%{transform:translate3d(0,8px,0) scale(.45) rotate(0deg);opacity:.15}50%{opacity:.75}100%{transform:translate3d(var(--spark-x,14px),-18px,0) scale(1.15) rotate(90deg);opacity:.28}}
+.magic-field i:nth-child(even){--spark-x:-18px}
+.magic-field i:nth-child(5n){border-radius:1px;transform:rotate(45deg)}
+.cosmic-runes span{animation:rune-drift 9s ease-in-out infinite alternate}
+.cosmic-runes span:nth-child(2n){animation-duration:12s;animation-delay:-5s}
+.cosmic-runes span:nth-child(3n){animation-duration:15s;animation-delay:-8s}
+@keyframes rune-drift{
+  0%{transform:translate3d(-8px,12px,0) rotate(-8deg) scale(.82);opacity:.25}
+  50%{opacity:.7}
+  100%{transform:translate3d(10px,-16px,0) rotate(12deg) scale(1.12);opacity:.35}
+}
+.magic-aura{transition:left .12s linear,top .12s linear}
+.hero::before,.hero::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:.28;
+  background:radial-gradient(circle,rgba(var(--ac),.18),transparent 68%);
+  filter:blur(10px);
+  animation:aurora-pulse 7s ease-in-out infinite alternate;
+}
+.hero::before{left:-90px;top:20%}
+.hero::after{right:-100px;bottom:-20px;animation-delay:-3.5s}
+@keyframes aurora-pulse{to{transform:scale(1.35) translateY(-18px);opacity:.55}}
+.hero-mark::after{
+  content:"";
+  position:absolute;
+  inset:-7px;
+  border:1px dotted rgba(var(--ac),.65);
+  border-radius:50%;
+  animation:rune-spin 14s linear infinite;
+}
+@keyframes rune-spin{to{transform:rotate(360deg)}}
+.magic-field::before,.magic-field::after{animation:anime-speed-line 5.5s ease-in-out infinite alternate}
+.magic-field::after{animation-delay:-2.8s}
+@keyframes anime-speed-line{
+  0%{transform:translateX(-6vw) rotate(-16deg) scaleX(.55);opacity:.12}
+  35%{opacity:.8}
+  100%{transform:translateX(12vw) rotate(-16deg) scaleX(1.15);opacity:.35}
+}
+.hero-title.reveal.is-visible{animation:title-anime .85s cubic-bezier(.18,.85,.28,1.25) both}
+@keyframes title-anime{
+  0%{opacity:0;transform:translateY(18px) scale(.94);filter:blur(12px)}
+  68%{transform:translateY(-3px) scale(1.025);filter:blur(0)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+.member:hover,.project:hover,.highlight:hover,.contacts a:hover{
+  animation:anime-pop .42s cubic-bezier(.2,.9,.28,1.35);
+}
+@keyframes anime-pop{
+  0%{filter:saturate(1)}
+  45%{filter:saturate(1.25) brightness(1.04)}
+  100%{filter:saturate(1)}
+}
+.hero-rings{
+  box-shadow:0 0 24px rgba(var(--ac),.06),inset 0 0 32px rgba(var(--ac),.04);
+}
+.hero-rings::before{
+  background:repeating-conic-gradient(from 12deg,rgba(var(--ac),.24) 0deg 1deg,transparent 1deg 18deg);
+  mask:radial-gradient(circle,transparent 58%,#000 59%,#000 61%,transparent 62%);
+}
+.btn.magnetic::before{
+  content:"";
+  position:absolute;
+  inset:3px;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:inherit;
+  opacity:.45;
+  pointer-events:none;
+}
+.btn.magnetic:hover::before{animation:button-flare .8s ease-out}
+@keyframes button-flare{
+  0%{transform:scale(.85);opacity:.8}
+  100%{transform:scale(1.12);opacity:0}
+}
+.member.spotlight::after,.highlight.spotlight::after,.project.spotlight::after,.contacts .spotlight::after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  width:90px;
+  height:90px;
+  right:-50px;
+  bottom:-50px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(var(--ac),.22),transparent 68%);
+  filter:blur(2px);
+  opacity:.7;
+  pointer-events:none;
+  transition:transform .6s ease,opacity .3s ease;
+}
+.member.spotlight:hover::after,.highlight.spotlight:hover::after,.project.spotlight:hover::after,.contacts .spotlight:hover::after{
+  transform:translate(-26px,-26px) scale(1.3);
+  opacity:1;
+}
 
 .spotlight{position:relative;isolation:isolate}
 .spotlight::before{
@@ -56,7 +160,8 @@ html.motion-ready .reveal:not(.is-visible){
   html{scroll-behavior:auto}
   html.motion-ready .reveal:not(.is-visible){opacity:1;transform:none}
   .hero-title.reveal{filter:none}
-  .hero-rings,.hero-rings::before,.hero-rings::after{animation:none}
+  .hero-rings,.hero-rings::before,.hero-rings::after,.hero-mark,.hero-mark::after,.hero::before,.hero::after,.magic-field i,.magic-field::before,.magic-field::after,.cosmic-runes span,.hero-title.reveal.is-visible,.member:hover,.project:hover,.highlight:hover,.contacts a:hover,.btn.magnetic::before{animation:none}
+  .magic-aura{display:none}
   .spotlight::before,.magnetic::after{display:none}
   .member.tilt-card,.magnetic,.reveal{transition:none!important}
   .row.user,.row.assistant{animation:none}

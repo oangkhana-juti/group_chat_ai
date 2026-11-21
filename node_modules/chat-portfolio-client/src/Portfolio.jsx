@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiUrl } from './api.js';
 import MemberAvatar from './MemberAvatar.jsx';
 import { content, label } from './i18n.js';
+import { getMemberClass } from './memberClass.js';
 
 const COLORS = ['#e59ab0', '#6fb1ea', '#8fd3a4'];
 
@@ -38,7 +39,9 @@ export default function Portfolio({ language, section, onScrollToSection }) {
       <section className="hero" data-reveal="hero">
         <span className="hero-mark" aria-hidden="true">✦</span>
         <span className="hero-rings" aria-hidden="true" />
-        <p className="eyebrow">MEET THE TEAM · {members.length} MAKERS</p>
+        <p className="eyebrow">
+          ✦ {members.length === 3 ? 'THREE SORCERERS' : `${members.length} SORCERERS`} · ONE SPELLBOOK ✦
+        </p>
         <h1 className="hero-title reveal">{team.name}</h1>
         <p className="tagline">{content(team.tagline, language)}</p>
         <a className="btn magnetic" href="#/chat">{label(language, '💬 ถาม AI เกี่ยวกับทีมเรา', '💬 Ask our AI about the team')}</a>
@@ -69,6 +72,7 @@ export default function Portfolio({ language, section, onScrollToSection }) {
             <a href={`#/member/${m.id}`} className="glass member spotlight reveal tilt-card" key={m.id} style={{ '--c': COLORS[i % COLORS.length] }}>
               <MemberAvatar member={m} language={language} />
               <h3>{m.name} <small>({m.nickname})</small></h3>
+              <span className="cls">✦ {getMemberClass(m, i, language)}</span>
               <p className="role">{content(m.role, language)}</p>
               {m.bio && <p>{content(m.bio, language)}</p>}
               <div className="chips">{m.skills.map((skill) => <span key={skill}>{content(skill, language)}</span>)}</div>
