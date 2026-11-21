@@ -40,6 +40,9 @@ jobs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
     permissions: { contents: read, pages: write, id-token: write }
     environment:
       name: github-pages
@@ -68,9 +71,12 @@ jobs:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
       - uses: actions/upload-pages-artifact@v3
         with:
+          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: client/out
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
 
   deploy:
     name: Deploy to Render
