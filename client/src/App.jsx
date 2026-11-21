@@ -19,7 +19,7 @@ function parse() {
 export default function App({ initiallyOpen }) {
   const [route, setRoute] = useState(parse);
   const [activeSection, setActiveSection] = useState(() => parse().section || null);
-  const [teamName, setTeamName] = useState('');
+  const [teamName, setTeamName] = useState('Do Ra E Mo Nueng');
   const [introReplay, setIntroReplay] = useState(0);
   const [stars] = useState(() => Array.from({ length: 60 }, () => ({
     left: `${Math.random() * 100}%`,
@@ -50,7 +50,15 @@ export default function App({ initiallyOpen }) {
       .then((data) => {
         if (active && typeof data.team?.name === 'string') setTeamName(data.team.name);
       })
-      .catch((error) => console.error('Could not load the team name for navigation.', error));
+      .catch((error) => {
+        console.error('Could not load the team name for navigation.', error);
+        fetch(`${import.meta.env.BASE_URL}portfolio.json`)
+          .then((response) => response.ok ? response.json() : Promise.reject(new Error(`Portfolio fallback request failed (${response.status}).`)))
+          .then((data) => {
+            if (active && typeof data.team?.name === 'string') setTeamName(data.team.name);
+          })
+          .catch((fallbackError) => console.error('Could not load the fallback team name.', fallbackError));
+      });
     return () => { active = false; };
   }, []);
   useEffect(() => { document.documentElement.lang = language; }, [language]);
