@@ -26,6 +26,23 @@ app.get('/api/portfolio', async (_req, res, next) => {
   try { res.json(await getPortfolio()); } catch (e) { next(e); }
 });
 
+app.get('/api/chat/sessions', async (_req, res, next) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT
+        session_id AS id,
+        (ARRAY_AGG(content ORDER BY id) FILTER (WHERE role = 'user'))[1] AS title,
+        MAX(created_at) AS "updatedAt",
+        COUNT(*)::int AS "messageCount"
+      FROM messages
+      GROUP BY session_id
+      HAVING COUNT(*) > 0
+      ORDER BY MAX(id) DESC
+    `);
+    res.json(rows);
+  } catch (e) { next(e); }
+});
+
 app.get('/api/chat/:sessionId', async (req, res, next) => {
   try {
     const { rows } = await pool.query(

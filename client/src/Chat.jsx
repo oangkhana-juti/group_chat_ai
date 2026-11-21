@@ -71,10 +71,45 @@ function saveSession(sessionId, messages) {
   localStorage.setItem(sessionsKey(), JSON.stringify(sessions));
 }
 
+function mergeMessages(localMessages, serverMessages) {
+  if (!Array.isArray(localMessages) || localMessages.length === 0) {
+    return Array.isArray(serverMessages) ? serverMessages : [];
+  }
+  if (!Array.isArray(serverMessages) || serverMessages.length === 0) {
+    return localMessages;
+  }
+
+  const merged = [...serverMessages];
+  const serverKeys = new Set(serverMessages.map((message) => `${message.role}:${message.content}`));
+  for (const message of localMessages) {
+    const key = `${message.role}:${message.content}`;
+    if (!serverKeys.has(key)) merged.push(message);
+  }
+  return merged;
+}
+
 function removeSession(sessionId) {
   const sessions = readSessions().filter((session) => session.id !== sessionId);
   localStorage.setItem(sessionsKey(), JSON.stringify(sessions));
   localStorage.removeItem(historyKey(sessionId));
+}
+
+function mergeSessions(localSessions, serverSessions) {
+  const merged = new Map();
+  for (const session of [...localSessions, ...serverSessions]) {
+    const existing = merged.get(session.id);
+    if (!existing) {
+      merged.set(session.id, session);
+      continue;
+    }
+    merged.set(session.id, {
+      ...existing,
+      ...session,
+      title: session.title || existing.title,
+      updatedAt: session.updatedAt > existing.updatedAt ? session.updatedAt : existing.updatedAt,
+    });
+  }
+  return [...merged.values()].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 }
 
 export default function Chat({ language }) {
@@ -90,8 +125,22 @@ export default function Chat({ language }) {
   const bottom = useRef(null);
 
   function refreshSessions() {
-    setSessions(readSessions());
+    const localSessions = readSessions();
+    setSessions(localSessions);
+    fetch(apiUrl('/api/chat/sessions'))
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((serverSessions) => {
+        if (!Array.isArray(serverSessions)) return;
+        const mergedSessions = mergeSessions(readSessions(), serverSessions);
+        localStorage.setItem(sessionsKey(), JSON.stringify(mergedSessions));
+        setSessions(mergedSessions);
+      })
+      .catch(() => {});
   }
+
+  useEffect(() => {
+    refreshSessions();
+  }, []);
 
   // รับคำถามที่ส่งมาจากหน้า Member (ถาม AI เกี่ยวกับคนนี้)
   useEffect(() => {
@@ -105,9 +154,11 @@ export default function Chat({ language }) {
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((serverMessages) => {
         if (!active) return;
-        setMessages(serverMessages);
-        saveHistory(sessionId, serverMessages);
-        saveSession(sessionId, serverMessages);
+        const localMessages = readHistory(sessionId);
+        const mergedMessages = mergeMessages(localMessages, serverMessages);
+        setMessages(mergedMessages);
+        saveHistory(sessionId, mergedMessages);
+        saveSession(sessionId, mergedMessages);
         setSessions(readSessions());
       })
       .catch(() => {
